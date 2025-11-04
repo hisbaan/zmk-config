@@ -1,0 +1,148 @@
+#define DEFAULT 0
+#define GAMING 1
+#define LOWER 2
+#define RAISE 3
+#define TRI 4
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+
+/ {
+    combos {
+        compatible = "zmk,combos";
+        combo_caps_word {
+            timeout-ms=<50>;
+            key-positions = <24 35>;
+            layers = <0>;
+            bindings = <&caps_word>;
+        };
+    };
+    behaviors {
+        tildesc: tilde_escape {
+            compatible = "zmk,behavior-mod-morph";
+            label = "TILDE_ESC";
+            #binding-cells = <0>;
+            bindings = <&kp ESC>, <&kp TILDE>;
+            mods = <(MOD_LSFT|MOD_RSFT)>;
+        };
+        ht_tildesc: hold_tap_hold_preferred_tilde_esc {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HT_TILDE_ESC";
+            tapping-term-ms = <200>;
+            #binding-cells = <2>;
+            bindings = <&kp>, <&tildesc>;
+        };
+        bspc_del: backspace_delete {
+            compatible = "zmk,behavior-mod-morph";
+            label = "BSPC_DEL";
+            #binding-cells = <0>;
+            bindings = <&kp BACKSPACE>, <&kp DELETE>;
+            mods = <(MOD_LSFT|MOD_RSFT)>;
+        };
+    };
+    conditional_layers {
+        compatible = "zmk,conditional-layers";
+        tri_layer {
+            if-layers = <LOWER RAISE>;
+            then-layer = <TRI>;
+        };
+    };
+    keymap {
+        compatible = "zmk,keymap";
+// ┌─────┬─────┬─────┬─────┬─────┬─────┐   ┌─────┬─────┬─────┬─────┬─────┬─────┐
+// │ TAB │  Q  │  W  │  E  │  R  │  T  │   │  Y  │  U  │  I  │  O  │  P  │ \   │
+// ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
+// │CT ES│  A  │  S  │  D  │  F  │  G  │   │  H  │  J  │  K  │  L  │  ;  │ '   │
+// ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
+// │ SFT │  Z  │  X  │  C  │  V  │  B  │   │  N  │  M  │  ,  │  .  │  /  │ SFT │
+// └─────┴─────┴─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┴─────┴─────┘
+//                   │ GUI │ LWR │ SPC │   │ RET │ RSE │ BSP │
+//                   └─────┴─────┴─────┘   └─────┴─────┴─────┘
+        default_layer {
+            label = "Base";
+            bindings = <
+   &kp TAB             &kp Q &kp W &kp E    &kp R     &kp T           &kp Y   &kp U     &kp I     &kp O   &kp P       &kp BSLH
+   &ht_tildesc LCTRL 0 &kp A &kp S &kp D    &kp F     &kp G           &kp H   &kp J     &kp K     &kp L   &kp SEMI &kp SQT
+   &kp LSHFT           &kp Z &kp X &kp C    &kp V     &kp B           &kp N   &kp M     &kp COMMA &kp DOT &kp FSLH &kp RSHFT
+                                   &kp LGUI &mo LOWER &kp SPACE       &kp RET &mo RAISE &bspc_del
+            >;
+        };
+
+// ┌─────┬─────┬─────┬─────┬─────┬─────┐   ┌─────┬─────┬─────┬─────┬─────┬─────┐
+// │     │     │     │     │     │     │   │     │     │     │     │     │ ESC │
+// ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
+// │ CTR │     │     │     │     │     │   │     │     │     │     │     │     │
+// ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
+// │     │     │     │     │     │     │   │     │     │     │     │     │     │
+// └─────┴─────┴─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┴─────┴─────┘
+//                   │     │     │     │   │     │     │     │
+//                   └─────┴─────┴─────┘   └─────┴─────┴─────┘
+        gaming_layer {
+            label = "Gaming";
+            bindings = <
+   &trans    &trans &trans &trans   &trans &trans      &trans &trans &trans &trans &trans &kp ESC
+   &kp LCTRL &trans &trans &trans   &trans &trans      &trans &trans &trans &trans &trans &trans
+   &trans    &trans &trans &trans   &trans &trans      &trans &trans &trans &trans &trans &trans
+                           &kp LALT &trans &trans      &trans &trans &trans
+            >;
+        };
+
+// ┌─────┬─────┬─────┬─────┬─────┬─────┐   ┌─────┬─────┬─────┬─────┬─────┬─────┐
+// │     │  1  │  2  │  3  │  4  │  5  │   │  6  │  7  │  8  │  9  │  0  │ PRT │
+// ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
+// │     │     │     │     │     │     │   │     │  4  │  5  │  6  │     │     │
+// ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
+// │     │     │     │     │     │     │   │     │  1  │  2  │  3  │     │     │
+// └─────┴─────┴─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┴─────┴─────┘
+//                   │ ALT │ ███ │     │   │  0  │     │     │
+//                   └─────┴─────┴─────┘   └─────┴─────┴─────┘
+        lower_layer {
+            label = "Lower";
+            bindings = <
+   &trans  &kp N1 &kp N2 &kp N3   &kp N4 &kp N5      &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &kp PSCRN
+   &trans  &trans &trans &trans   &trans &trans      &trans &kp N4 &kp N5 &kp N6 &trans &trans
+   &trans  &trans &trans &trans   &trans &trans      &trans &kp N1 &kp N2 &kp N3 &trans &trans
+                         &kp LALT &trans &trans      &kp N0 &trans &trans
+            >;
+        };
+
+// ┌─────┬─────┬─────┬─────┬─────┬─────┐   ┌─────┬─────┬─────┬─────┬─────┬─────┐
+// │     │  !  │  @  │ \#  │  $  │  %  │   │  ^  │  &  │  *  │  (  │  )  │ BSP │
+// ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
+// │CTL `│     │     │     │     │     │   │  -  │  =  │  [  │  ]  │  \  │  `  │
+// ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
+// │     │     │     │     │     │     │   │  _  │  +  │  {  │  }  │  |  │     │
+// └─────┴─────┴─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┴─────┴─────┘
+//                   │     │     │     │   │     │ ███ │     │
+//                   └─────┴─────┴─────┘   └─────┴─────┴─────┘
+        raise_layer {
+            label = "Raise";
+            bindings = <
+   &trans          &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT   &kp CARET &kp AMPS  &kp STAR &kp LPAR &kp RPAR &kp BSPC
+   &mt LCTRL GRAVE &trans   &trans &trans   &trans   &trans      &kp MINUS &kp EQUAL &kp LBKT &kp RBKT &kp BSLH &kp GRAVE
+   &trans          &trans   &trans &trans   &trans   &trans      &kp UNDER &kp PLUS  &kp LBRC &kp RBRC &kp PIPE &trans
+                    	           &trans   &trans   &trans      &trans    &trans    &trans
+            >;
+        };
+
+// ┌─────┬─────┬─────┬─────┬─────┬─────┐   ┌─────┬─────┬─────┬─────┬─────┬─────┐
+// │ BCL │ LG1 │ LG2 │ LG3 │ LG4 │ LG5 │   │ LG6 │ LG7 │ LG8 │ LG9 │ LG0 │ GAM │
+// ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
+// │     │ BT1 │ BT2 │ BT3 │ BT4 │ BT5 │   │ LEF │ DOW │ UP  │ RIT │     │ F12 │
+// ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
+// │     │ F1  │ F2  │ F3  │ F4  │ F5  │   │ F6  │ F7  │ F8  │ F9  │ F10 │ F11 │
+// └─────┴─────┴─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┴─────┴─────┘
+//                   │     │ ███ │     │   │     │ ███ │     │
+//                   └─────┴─────┴─────┘   └─────┴─────┴─────┘
+        tri_layer {
+            label = "Tri";
+            bindings = <
+   &bt BT_CLR &kp LG(N1)     &kp LG(N2)     &kp LG(N3)     &kp LG(N4)     &kp LG(N5)       &kp LG(N6)     &kp LG(N7)     &kp LG(N8)     &kp LG(N9)     &kp LG(N0)     &tog GAMING
+   &trans     &bt BT_SEL 0   &bt BT_SEL 1   &bt BT_SEL 2   &bt BT_SEL 3   &bt BT_SEL 4     &kp LEFT       &kp DOWN       &kp UP         &kp RIGHT      &trans         &kp F12
+   &trans     &kp F1         &kp F2         &kp F3         &kp F4         &kp F5           &kp F6         &kp F7         &kp F8         &kp F9         &kp F10        &kp F11
+                    	                    &trans         &trans         &trans           &trans         &trans         &trans
+            >;
+        };
+    };
+};
